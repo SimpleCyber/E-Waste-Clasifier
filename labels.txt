@@ -1,0 +1,4 @@
+0 Mother Board (PCB)
+1 Battery
+2 Mobile
+3 Class 4
