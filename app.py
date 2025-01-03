@@ -1,26 +1,29 @@
-import numpy as np
-from tensorflow.keras.models import load_model  # Updated to use tensorflow.keras
+from keras.models import load_model  # TensorFlow is required for Keras to work
 from PIL import Image, ImageOps  # Install pillow instead of PIL
-import streamlit as st
-from dotenv import load_dotenv
+import numpy as np
+import streamlit as st 
+from dotenv import load_dotenv 
 import os
+import openai
 
 load_dotenv()
 
-# Function to classify the waste image
+
 def classify_waste(img):
     # Disable scientific notation for clarity
     np.set_printoptions(suppress=True)
 
-    # Load the model from TensorFlow
+    # Load the model
     model = load_model("keras_model.h5", compile=False)
 
     # Load the labels
     class_names = open("labels.txt", "r").readlines()
 
     # Create the array of the right shape to feed into the keras model
+    # The 'length' or number of images you can put into the array is
+    # determined by the first position in the shape tuple, in this case 1
     data = np.ndarray(shape=(1, 224, 224, 3), dtype=np.float32)
-
+    
     # Replace this with the path to your image
     image = img.convert("RGB")
 
@@ -43,7 +46,26 @@ def classify_waste(img):
     class_name = class_names[index]
     confidence_score = prediction[0][index]
 
+    # Print prediction and confidence score
+    #print("Class:", class_name[2:], end="")
+    #print("Confidence Score:", confidence_score)
+
     return class_name, confidence_score
+
+def generate_carbon_footprint_info(label):
+    label = label.split(' ')[1]
+    print(label)
+    response = openai.Completion.create(
+    model="text-davinci-003",
+    prompt="What is the approximate Carbon emission or carbon footprint generated from "+label+"? I just need an approximate number to create awareness. Elaborate in 100 words.\n",
+    temperature=0.7,
+    max_tokens=600,
+    top_p=1,
+    frequency_penalty=0,
+    presence_penalty=0
+    )
+    return response['choices'][0]['text']
+
 
 st.set_page_config(layout='wide')
 
@@ -53,10 +75,9 @@ input_img = st.file_uploader("Enter your image", type=['jpg', 'png', 'jpeg'])
 
 if input_img is not None:
     if st.button("Classify"):
-        
         col1, col2, col3 = st.columns([1,1,1])
 
-        with col1:
+       with col1:
             st.info("Your uploaded Image")
             st.image(input_img, use_container_width=True)
 
@@ -67,11 +88,15 @@ if input_img is not None:
             col4, col5 = st.columns([1,1])
             if label == "0 Mother Board (PCB)\n":
                 st.success("The image is classified as Mother Board (PCB).")                
+                
             elif label == "1 Battery\n":
                 st.success("The image is classified as Battery.")
+                
             elif label == "2 Mobile\n":
                 st.success("The image is classified as Mobile.")
+               
             elif label == "3 Class 4\n":
                 st.success("The image is classified as Washing Machine.")
+                
             else:
                 st.error("The image is not classified as any relevant class.")
