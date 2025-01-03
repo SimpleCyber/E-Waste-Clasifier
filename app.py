@@ -1,8 +1,8 @@
 import numpy as np
-from keras.models import load_model  # TensorFlow is required for Keras to work
+from tensorflow.keras.models import load_model  # Updated to use tensorflow.keras
 from PIL import Image, ImageOps  # Install pillow instead of PIL
-import streamlit as st 
-from dotenv import load_dotenv 
+import streamlit as st
+from dotenv import load_dotenv
 import os
 
 load_dotenv()
@@ -12,25 +12,23 @@ def classify_waste(img):
     # Disable scientific notation for clarity
     np.set_printoptions(suppress=True)
 
-    # Load the model using TensorFlow's method
+    # Load the model from TensorFlow
     model = load_model("keras_model.h5", compile=False)
 
     # Load the labels
     class_names = open("labels.txt", "r").readlines()
 
     # Create the array of the right shape to feed into the keras model
-    # The 'length' or number of images you can put into the array is
-    # determined by the first position in the shape tuple, in this case 1
     data = np.ndarray(shape=(1, 224, 224, 3), dtype=np.float32)
-    
+
     # Replace this with the path to your image
     image = img.convert("RGB")
 
-    # Resizing the image to be at least 224x224 and then cropping from the center
+    # resizing the image to be at least 224x224 and then cropping from the center
     size = (224, 224)
     image = ImageOps.fit(image, size, Image.Resampling.LANCZOS)
 
-    # Turn the image into a numpy array
+    # turn the image into a numpy array
     image_array = np.asarray(image)
 
     # Normalize the image
@@ -39,16 +37,14 @@ def classify_waste(img):
     # Load the image into the array
     data[0] = normalized_image_array
 
-    # Predict the model
+    # Predicts the model
     prediction = model.predict(data)
     index = np.argmax(prediction)
     class_name = class_names[index]
     confidence_score = prediction[0][index]
 
-    # Return prediction and confidence score
     return class_name, confidence_score
 
-# Streamlit app setup
 st.set_page_config(layout='wide')
 
 st.title("Waste Classifier Sustainability App")
@@ -71,15 +67,11 @@ if input_img is not None:
             col4, col5 = st.columns([1,1])
             if label == "0 Mother Board (PCB)\n":
                 st.success("The image is classified as Mother Board (PCB).")                
-                
             elif label == "1 Battery\n":
                 st.success("The image is classified as Battery.")
-                
             elif label == "2 Mobile\n":
                 st.success("The image is classified as Mobile.")
-               
             elif label == "3 Class 4\n":
                 st.success("The image is classified as Washing Machine.")
-                
             else:
                 st.error("The image is not classified as any relevant class.")
