@@ -1,6 +1,6 @@
+import numpy as np
 from keras.models import load_model  # TensorFlow is required for Keras to work
 from PIL import Image, ImageOps  # Install pillow instead of PIL
-import numpy as np
 import streamlit as st 
 from dotenv import load_dotenv 
 import os
@@ -8,7 +8,7 @@ import openai
 
 load_dotenv()
 
-
+# Function to classify the waste image
 def classify_waste(img):
     # Disable scientific notation for clarity
     np.set_printoptions(suppress=True)
@@ -27,11 +27,11 @@ def classify_waste(img):
     # Replace this with the path to your image
     image = img.convert("RGB")
 
-    # resizing the image to be at least 224x224 and then cropping from the center
+    # Resizing the image to be at least 224x224 and then cropping from the center
     size = (224, 224)
     image = ImageOps.fit(image, size, Image.Resampling.LANCZOS)
 
-    # turn the image into a numpy array
+    # Turn the image into a numpy array
     image_array = np.asarray(image)
 
     # Normalize the image
@@ -40,33 +40,30 @@ def classify_waste(img):
     # Load the image into the array
     data[0] = normalized_image_array
 
-    # Predicts the model
+    # Predict the model
     prediction = model.predict(data)
     index = np.argmax(prediction)
     class_name = class_names[index]
     confidence_score = prediction[0][index]
 
-    # Print prediction and confidence score
-    #print("Class:", class_name[2:], end="")
-    #print("Confidence Score:", confidence_score)
-
+    # Return prediction and confidence score
     return class_name, confidence_score
 
+# Function to generate carbon footprint info using OpenAI
 def generate_carbon_footprint_info(label):
     label = label.split(' ')[1]
-    print(label)
     response = openai.Completion.create(
-    model="text-davinci-003",
-    prompt="What is the approximate Carbon emission or carbon footprint generated from "+label+"? I just need an approximate number to create awareness. Elaborate in 100 words.\n",
-    temperature=0.7,
-    max_tokens=600,
-    top_p=1,
-    frequency_penalty=0,
-    presence_penalty=0
+        model="text-davinci-003",
+        prompt=f"What is the approximate Carbon emission or carbon footprint generated from {label}? I just need an approximate number to create awareness. Elaborate in 100 words.\n",
+        temperature=0.7,
+        max_tokens=600,
+        top_p=1,
+        frequency_penalty=0,
+        presence_penalty=0
     )
     return response['choices'][0]['text']
 
-
+# Streamlit app setup
 st.set_page_config(layout='wide')
 
 st.title("Waste Classifier Sustainability App")
@@ -101,6 +98,3 @@ if input_img is not None:
                 
             else:
                 st.error("The image is not classified as any relevant class.")
-
-        
-
