@@ -1,6 +1,6 @@
-tensorflow-cpu
-numpy
-pillow
+tensorflow
 streamlit
+pillow
 openai
 python-dotenv
+numpy
