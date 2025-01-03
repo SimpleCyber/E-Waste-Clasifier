@@ -77,7 +77,7 @@ if input_img is not None:
     if st.button("Classify"):
         col1, col2, col3 = st.columns([1,1,1])
 
-       with col1:
+        with col1:
             st.info("Your uploaded Image")
             st.image(input_img, use_container_width=True)
 
