@@ -4,7 +4,6 @@ from PIL import Image, ImageOps  # Install pillow instead of PIL
 import streamlit as st 
 from dotenv import load_dotenv 
 import os
-import openai
 
 load_dotenv()
 
@@ -13,7 +12,7 @@ def classify_waste(img):
     # Disable scientific notation for clarity
     np.set_printoptions(suppress=True)
 
-    # Load the model
+    # Load the model using TensorFlow's method
     model = load_model("keras_model.h5", compile=False)
 
     # Load the labels
@@ -48,20 +47,6 @@ def classify_waste(img):
 
     # Return prediction and confidence score
     return class_name, confidence_score
-
-# Function to generate carbon footprint info using OpenAI
-def generate_carbon_footprint_info(label):
-    label = label.split(' ')[1]
-    response = openai.Completion.create(
-        model="text-davinci-003",
-        prompt=f"What is the approximate Carbon emission or carbon footprint generated from {label}? I just need an approximate number to create awareness. Elaborate in 100 words.\n",
-        temperature=0.7,
-        max_tokens=600,
-        top_p=1,
-        frequency_penalty=0,
-        presence_penalty=0
-    )
-    return response['choices'][0]['text']
 
 # Streamlit app setup
 st.set_page_config(layout='wide')
