@@ -80,7 +80,7 @@ if input_img is not None:
 
         with col1:
             st.info("Your uploaded Image")
-            st.image(input_img, use_column_width=True)
+            st.image(input_img, use_container_width=True)
 
         with col2:
             st.info("Your Result")
