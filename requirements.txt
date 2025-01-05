@@ -1,6 +1,7 @@
-tensorflow
+tensorflow==2.15.0
 streamlit
 pillow
 openai
 python-dotenv
 numpy
+keras==2.15.0
